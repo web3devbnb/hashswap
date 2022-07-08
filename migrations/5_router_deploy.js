@@ -1,5 +1,5 @@
-const SunFactory = artifacts.require("SunFactory");
-const SunRouter = artifacts.require("SunRouter");
+const HashFactory = artifacts.require("HashFactory");
+const HashRouter = artifacts.require("HashRouter");
 
 const WETH = {
   'bsc': '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
@@ -8,5 +8,5 @@ const WETH = {
 }
 
 module.exports = function (deployer, network, accounts) {
-  deployer.deploy(SunRouter, SunFactory.address, WETH[network]);
+  deployer.deploy(HashRouter, HashFactory.address, WETH[network]);
 };

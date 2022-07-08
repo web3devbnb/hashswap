@@ -1,6 +1,6 @@
 const MasterChef = artifacts.require("MasterChef");
-const SunSwapToken = artifacts.require("SunSwapToken");
+const HashSwapToken = artifacts.require("HashSwapToken");
 
 module.exports = function (deployer,network,accounts) {
-  deployer.deploy(MasterChef,SunSwapToken.address,accounts[0],accounts[0],'10000000000000');
+  deployer.deploy(MasterChef,HashSwapToken.address,accounts[0],accounts[0],'10000000000000');
 };

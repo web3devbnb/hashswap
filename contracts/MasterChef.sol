@@ -5,7 +5,7 @@ import './libraries/SafeMath.sol';
 import './interfaces/IBEP20.sol';
 import './SafeBEP20.sol';
 import './libraries/Ownable.sol';
-import './SunSwapToken.sol';
+import './HashSwapToken.sol';
 
 contract MasterChef is Ownable {
     using SafeMath for uint256;
@@ -19,10 +19,10 @@ contract MasterChef is Ownable {
         // We do some fancy math here. Basically, any point in time, the amount of YAMADAs
         // entitled to a user but is pending to be distributed is:
         //
-        //   pending reward = (user.amount * pool.accSunPerShare) - user.rewardDebt
+        //   pending reward = (user.amount * pool.accHashPerShare) - user.rewardDebt
         //
         // Whenever a user deposits or withdraws LP tokens to a pool. Here's what happens:
-        //   1. The pool's `accSunPerShare` (and `lastRewardBlock`) gets updated.
+        //   1. The pool's `accHashPerShare` (and `lastRewardBlock`) gets updated.
         //   2. User receives the pending reward sent to his/her address.
         //   3. User's `amount` gets updated.
         //   4. User's `rewardDebt` gets updated.
@@ -33,17 +33,17 @@ contract MasterChef is Ownable {
         IBEP20 lpToken; // Address of LP token contract.
         uint256 allocPoint; // How many allocation points assigned to this pool. YAMADAs to distribute per block.
         uint256 lastRewardBlock; // Last block number that YAMADAs distribution occurs.
-        uint256 accSunPerShare; // Accumulated YAMADAs per share, times 1e12. See below.
+        uint256 accHashPerShare; // Accumulated YAMADAs per share, times 1e12. See below.
         uint16 depositFeeBP; // Deposit fee in basis points
     }
 
     // The YAMADA TOKEN!
-    SunSwapToken public sun;
+    HashSwapToken public hash;
     // Dev address.
     address public devaddr;
     // YAMADA tokens created per block.
-    uint256 public sunPerBlock;
-    // Bonus muliplier for early sun makers.
+    uint256 public hashPerBlock;
+    // Bonus muliplier for early hash makers.
     uint256 public constant BONUS_MULTIPLIER = 1;
     // Deposit Fee address
     address public feeAddress;
@@ -62,15 +62,15 @@ contract MasterChef is Ownable {
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
 
     constructor(
-        SunSwapToken _sun,
+        HashSwapToken _hash,
         address _devaddr,
         address _feeAddress,
-        uint256 _sunPerBlock
+        uint256 _hashPerBlock
     ) {
-        sun = _sun;
+        hash = _hash;
         devaddr = _devaddr;
         feeAddress = _feeAddress;
-        sunPerBlock = _sunPerBlock;
+        hashPerBlock = _hashPerBlock;
     }
 
     function poolLength() external view returns (uint256) {
@@ -101,7 +101,7 @@ contract MasterChef is Ownable {
                 lpToken: _lpToken,
                 allocPoint: _allocPoint,
                 lastRewardBlock: lastRewardBlock,
-                accSunPerShare: 0,
+                accHashPerShare: 0,
                 depositFeeBP: _depositFeeBP
             })
         );
@@ -129,17 +129,17 @@ contract MasterChef is Ownable {
     }
 
     // View function to see pending YAMADAs on frontend.
-    function pendingSun(uint256 _pid, address _user) external view returns (uint256) {
+    function pendingHash(uint256 _pid, address _user) external view returns (uint256) {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
-        uint256 accSunPerShare = pool.accSunPerShare;
+        uint256 accHashPerShare = pool.accHashPerShare;
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
             uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-            uint256 sunReward = multiplier.mul(sunPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-            accSunPerShare = accSunPerShare.add(sunReward.mul(1e12).div(lpSupply));
+            uint256 hashReward = multiplier.mul(hashPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+            accHashPerShare = accHashPerShare.add(hashReward.mul(1e12).div(lpSupply));
         }
-        return user.amount.mul(accSunPerShare).div(1e12).sub(user.rewardDebt);
+        return user.amount.mul(accHashPerShare).div(1e12).sub(user.rewardDebt);
     }
 
     // Update reward variables for all pools. Be careful of gas spending!
@@ -162,10 +162,10 @@ contract MasterChef is Ownable {
             return;
         }
         uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-        uint256 sunReward = multiplier.mul(sunPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-        sun.mint(devaddr, sunReward.div(10));
-        sun.mint(address(this), sunReward);
-        pool.accSunPerShare = pool.accSunPerShare.add(sunReward.mul(1e12).div(lpSupply));
+        uint256 hashReward = multiplier.mul(hashPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+        hash.mint(devaddr, hashReward.div(10));
+        hash.mint(address(this), hashReward);
+        pool.accHashPerShare = pool.accHashPerShare.add(hashReward.mul(1e12).div(lpSupply));
         pool.lastRewardBlock = block.number;
     }
 
@@ -175,9 +175,9 @@ contract MasterChef is Ownable {
         UserInfo storage user = userInfo[_pid][msg.sender];
         updatePool(_pid);
         if (user.amount > 0) {
-            uint256 pending = user.amount.mul(pool.accSunPerShare).div(1e12).sub(user.rewardDebt);
+            uint256 pending = user.amount.mul(pool.accHashPerShare).div(1e12).sub(user.rewardDebt);
             if (pending > 0) {
-                safeSunTransfer(msg.sender, pending);
+                safeHashTransfer(msg.sender, pending);
             }
         }
         if (_amount > 0) {
@@ -190,7 +190,7 @@ contract MasterChef is Ownable {
                 user.amount = user.amount.add(_amount);
             }
         }
-        user.rewardDebt = user.amount.mul(pool.accSunPerShare).div(1e12);
+        user.rewardDebt = user.amount.mul(pool.accHashPerShare).div(1e12);
         emit Deposit(msg.sender, _pid, _amount);
     }
 
@@ -200,15 +200,15 @@ contract MasterChef is Ownable {
         UserInfo storage user = userInfo[_pid][msg.sender];
         require(user.amount >= _amount, 'withdraw: not good');
         updatePool(_pid);
-        uint256 pending = user.amount.mul(pool.accSunPerShare).div(1e12).sub(user.rewardDebt);
+        uint256 pending = user.amount.mul(pool.accHashPerShare).div(1e12).sub(user.rewardDebt);
         if (pending > 0) {
-            safeSunTransfer(msg.sender, pending);
+            safeHashTransfer(msg.sender, pending);
         }
         if (_amount > 0) {
             user.amount = user.amount.sub(_amount);
             pool.lpToken.safeTransfer(address(msg.sender), _amount);
         }
-        user.rewardDebt = user.amount.mul(pool.accSunPerShare).div(1e12);
+        user.rewardDebt = user.amount.mul(pool.accHashPerShare).div(1e12);
         emit Withdraw(msg.sender, _pid, _amount);
     }
 
@@ -223,13 +223,13 @@ contract MasterChef is Ownable {
         emit EmergencyWithdraw(msg.sender, _pid, amount);
     }
 
-    // Safe sun transfer function, just in case if rounding error causes pool to not have enough YAMADAs.
-    function safeSunTransfer(address _to, uint256 _amount) internal {
-        uint256 sunBal = sun.balanceOf(address(this));
-        if (_amount > sunBal) {
-            sun.transfer(_to, sunBal);
+    // Safe hash transfer function, just in case if rounding error causes pool to not have enough YAMADAs.
+    function safeHashTransfer(address _to, uint256 _amount) internal {
+        uint256 hashBal = hash.balanceOf(address(this));
+        if (_amount > hashBal) {
+            hash.transfer(_to, hashBal);
         } else {
-            sun.transfer(_to, _amount);
+            hash.transfer(_to, _amount);
         }
     }
 
@@ -245,8 +245,8 @@ contract MasterChef is Ownable {
     }
 
     //Pancake has to add hidden dummy pools inorder to alter the emission, here we make it simple and transparent to all.
-    function updateEmissionRate(uint256 _sunPerBlock) public onlyOwner {
+    function updateEmissionRate(uint256 _hashPerBlock) public onlyOwner {
         massUpdatePools();
-        sunPerBlock = _sunPerBlock;
+        hashPerBlock = _hashPerBlock;
     }
 }

@@ -44,7 +44,7 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "@truffle/hdwallet-provider": "^1.4.1",
-    "truffle": "^5.1.41",
+    "truffle": "^5.5.21",
     "truffle-compile": "^4.2.3",
     "truffle-flattener": "^1.4.4",
     "truffle-hdwallet-provider": "^1.0.17"

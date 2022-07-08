@@ -1,6 +1,6 @@
-# SunSwap Factory
+# HashSwap Factory
 
-In-depth documentation on PancakeSwap is available at [docs.sunswapfinance.com](https://docs.sunswapfinance.com/).
+In-depth documentation on PancakeSwap is available at [docs.hashswapfinance.com](https://docs.hashswapfinance.com/).
 
 # Local Development
 

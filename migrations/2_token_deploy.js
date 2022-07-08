@@ -1,5 +1,5 @@
-const SunSwapToken = artifacts.require("SunSwapToken");
+const HashSwapToken = artifacts.require("HashSwapToken");
 
 module.exports = function (deployer) {
-  deployer.deploy(SunSwapToken);
+  deployer.deploy(HashSwapToken);
 };

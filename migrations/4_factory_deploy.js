@@ -1,4 +1,4 @@
-const SunFactory = artifacts.require("SunFactory");
+const HashFactory = artifacts.require("HashFactory");
 module.exports = function (deployer, network, accounts) {
-  deployer.deploy(SunFactory, accounts[0])
+  deployer.deploy(HashFactory, accounts[0])
 };
