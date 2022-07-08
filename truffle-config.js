@@ -12,11 +12,6 @@ module.exports = {
     bscscan: BSCSCANAPIKEY
   },
   networks: {
-    development: {
-      host: "127.0.0.1",     // Localhost (default: none)
-      port: 7545,            // Standard BSC port (default: none)
-      network_id: "*",       // Any network (default: none)
-    },
     testnet: {
       provider: () => new HDWalletProvider(mnemonic, `https://data-seed-prebsc-1-s1.binance.org:8545`),
       network_id: 97,
@@ -27,7 +22,6 @@ module.exports = {
     bsc: {
       provider: () => new HDWalletProvider(mnemonic, `https://bsc-dataseed1.binance.org`),
       network_id: 56,
-      confirmations: 10,
       timeoutBlocks: 200,
       skipDryRun: true,
       gas:20000000,

@@ -49,7 +49,7 @@ contract HashRouter is IHashRouter02, Ownable {
                             hex'ff',
                             factory,
                             keccak256(abi.encodePacked(token0, token1)),
-                            hex'e6c9b5778aa578689587c301fc4d20f8363cd4a6b1e4577f2214ebf5578b4bfa'
+                            hex'ee33aa7b4696e080cfe9a11adc7bb3040e14cbeca604f2ceba6cd478df727b8b'
                             // hex'factory init_code_hash'
                         )
                     )
